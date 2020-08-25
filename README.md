@@ -9,4 +9,4 @@ This module is a key part of the interoperability in the C3-Cloud project. It co
 Mappings between several medical terminologies have been performed and manually curated.  
 The goal of this service is to expose the mappings and to return the corresponding codes from one terminology to another.
 
-refer to [](https://rubis.limics.upmc.fr/c3-cloud/documentation/) for a more detailed description of the semantic mapper and this client.
+refer to [the documentation](https://rubis.limics.upmc.fr/c3-cloud/documentation/) for a more detailed description of the semantic mapper and this client.
