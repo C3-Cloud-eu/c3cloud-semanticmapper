@@ -1,0 +1,10 @@
+name,uri,version
+SNOMED CT,http://snomed.info/sct,
+ICD-10,http://hl7.org/fhir/sid/icd-10,2015
+ICD-10-CM,uri:oid:2.16.840.1.113883.6.90,2017
+CIE-10,urn:oid:2.16.724.4.21.5.29,2016
+ICD-10-SE,urn:oid:1.2.752.116.1.1.1.1.3,2017
+Read Code,urn:oid:2.16.840.1.113883.6.29,
+ATC,http://www.whocc.no/atc,
+UMLS,uri:oid:2.16.840.1.113883.6.86,"May 8, 2017"
+LOINC,http://loinc.org,2.61

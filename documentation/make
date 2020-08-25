@@ -1,0 +1,22 @@
+#!/usr/bin/sh
+
+echo '<style>' > style.css
+cat pandoc_.css >>style.css
+sass style.sass >> style.css
+echo '</style>' >> style.css
+
+sed -i "s/#+DATE: .*$/#+DATE: $(date +'%Y-%m-%d')/" manual.org
+
+
+pandoc manual.org -s \
+	   --standalone \
+	   --template template.html \
+	   --highlight-style pygments \
+	   --toc \
+	   --toc-depth=6 \
+	   -H style.css \
+	   -o index.html
+
+
+
+# --number-section \

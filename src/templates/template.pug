@@ -1,0 +1,257 @@
+html
+  head
+    //- link(href="https://unpkg.com/vuetify/dist/vuetify.min.css", rel="stylesheet")
+    //- link(href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css", rel="stylesheet")
+    link(href="bootstrap_3.3.7/css/bootstrap.min.css", rel="stylesheet")
+
+    //- script(src="https://code.jquery.com/jquery-3.2.1.min.js", integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=", crossorigin="anonymous")
+    script(src="js/jquery-3.2.1.min.js")
+    
+    //- link(href="https://cdn.datatables.net/1.10.16/css/dataTables.bootstrap.min.css", rel="stylesheet")
+    
+    link(href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700|Material+Icons",rel="stylesheet")
+    //- link(href="css/vuetify.min.css", rel="stylesheet")
+    link(href="font-awesome-4.7.0/css/font-awesome.min.css", rel="stylesheet")
+    link(href="css/style.css", rel="stylesheet")
+    
+  body
+    .container#app
+      .row.well.title-div
+        h2 Welcome to the Task 6.2 Demonstrator
+        h5 
+          | This is the demonstration page of the Semantic Interoperability task.
+          br
+          | You can send requests by filling the form below, and see the generated GET request and it's response 
+          | to the right.
+          br
+          | Under the "table" tab is a list of all the codes in the database, 
+          | and their reference concept for the mapping.
+          br
+          | Under the "code-editor" tab, you can search for a mapping
+          | in the database, and modify/create it.
+        hr
+      .row.row-nav
+        ul.nav.nav-tabs
+          for path in ["main", "table", "mapping-editor", "about"]
+            router-link(tag="li", to="[[path]]", exact)
+              a [[ path ]]
+      router-view
+      footer
+
+          
+    // ------------- 
+    // | templates | 
+    // ------------- 
+    script#request-tester-template(type="text/x-template")
+      div
+        .row
+          .well
+            h4 Request tester:
+            p fill the form and submit it to see the generated URI and the server's response
+        .row
+          .col-md-6
+            form.form-horizontal.search-form#get-form
+              .form-group
+                label.control-label(for="fromSite") from which site?
+                select.form-control(name="fromSite", v-model="tester_from_site")
+                  option(disabled,selected,value) -- Select a site --
+                  option(v-for="e in sites") {{e}}
+          .col-md-6
+              .form-group
+                label.control-label(for="toSite") to which site?
+                select.form-control(name="toSite", v-model="tester_to_site", v-on:change="update_tester()")
+                  option(disabled,selected,value) -- Select a site --
+                  option(v-for="e in sites") {{e}}
+
+        .row
+          .col-md-12
+              .form-group
+                label.control-label(for="fromCode") for which code?
+                input.form-control(list="codelist" name='fromCode', autocomplete="off", :disabled="tester_from_site.length == 0", v-model="tester_from_code", v-on:change="update_tester()")
+                datalist#codelist
+                  option(v-for="e in filteredCodes") {{show_code(e)}}
+                //- select.form-control(name="fromCode", :disabled="tester_from_site.length == 0", v-model="tester_from_code", v-on:change="update_tester()")
+                  //- option(disabled,selected,value='-1') -- Select a code -- 
+
+
+              //- button.btn.btn-primary(type="button" v-on:click="sendRequest") Search
+        .row
+          .col-md-12
+            .row.alert.alert-info(v-if="getURL.length")
+              .col-xs-12
+                .row
+                  h4.info-title mapping a code between two sites:
+                .row.urldiv
+                  a(v-bind:href="getURL")#request {{ getURL }}
+                .row
+                  pre
+                    code#response {{ getResult }}
+
+    script#about-template(type="text/x-template")
+    
+      .row
+        //- include:marked about.md
+        //- h3 About this Demonstrator
+        h4 Introduction
+        p
+          | This is the demonstrator of the Task 6.2 of the 
+          | <a href="http://www.c3-cloud.eu/">c3-cloud</a>
+          | project.
+        h4 Implementation:
+        p
+          | The service is written in python (3.6),
+          | and uses a sqlite database to store the different mappings.
+        h4 mappings
+        p
+          | The mappings have been performed manually
+          | using each pilos site's terminology,
+          | and an international terminology for the reference code (CDSM). <br>
+          | We used <span>SNOMED CT</span>, <span>LOINC</span> and <span>ATC</span> 
+          | where possible as reference for
+          | conditions, observations, and medications respectively. <br>
+          | When a code was not available in one of these terminologies, 
+          | a fallback was possible to <span>ICD-10 CM</span>.
+          
+
+    script#vue-table-template(type="text/x-template")
+      div
+        .row
+          .well
+            h4 mapping table:
+            p
+              | This table shows one code and site on every row,
+              | with the mapping this code represents.<br>
+              | Click on the edit icon on the right of a column to edit the mapping.
+        .row.mapping-table
+          table#table.table.table-striped.table-bordered.table-hover.table-condensed
+            thead
+              tr
+                th(v-for="e in ['concept', 'site', 'code_system', 'code', 'designation']") {{e}}
+                th
+            tbody
+              tr(v-for="item in mappings")
+                td(v-for="e in ['concept', 'site', 'code_system', 'code', 'designation']") {{item[e]}}
+                td
+                  button.btn.btn-secondary(v-on:click='edit(item)')
+                    span.fa-stack
+                      i.fa.fa-square-o.fa-stack-2x
+                      i.fa.fa-pencil.fa-stack-1x
+
+    script#mapping-editor-template(type="text/x-template")
+      div.container
+        .row
+          .col-md-3.well
+            h4 mapping editor
+            p 
+              | Select a site and a concept to see 
+              | the current mapping associated to them, 
+              | modify them, and hit 'save'
+              | NB: add your API key in the text field below
+          .col-md-9
+            p
+            .row.alert.alert-info(v-if="get_mappingURL")
+              .col-xs-12
+                .row
+                  h4.info-title getting a mapping:
+                .row.urldiv
+                  a(v-bind:href="get_mappingURL") {{ get_mappingURL }}
+        .row
+          .col-md-3
+            .row
+              .col-md-12
+                form#editor-form(v-on:update_editor_from_table="update_editor")
+                
+                  .form-group
+                    label(for="site") API key:
+                    input(type="password").form-control(name="apikey", v-model="apikey", v-on:change="update_editor()")
+
+                  .form-group
+                    label(for="site") for which site?
+                    select.form-control(name="site", v-model="editor_site", v-on:change="update_editor()")
+                      option(disabled,selected,value) -- Select a site --
+                      option(v-for="e in sites") {{e}}
+
+                  .form-group
+                    label(for="concept") for which concept?
+                    select.form-control(name="concept", v-model="editor_concept", v-on:change="update_editor()")
+                      option(disabled, selected, value) -- Select a concept --
+                      option(v-for="e in concepts") {{e}}
+                      //- , v-bind:value="e.id"
+              
+          .col-md-9
+            //- .row
+            .row.alert.alert-info(style="max-height:17em; overflow-y: scroll; height:17em", v-if="editor_post_url")
+              .col-xs-12
+                .row
+                  h4.info-title Setting a mapping:
+                .row
+                  label(for="editor-post-url") url:
+                  div#editor-post-url.urldiv {{editor_post_url}}
+                  label(for="editor-post-data") post data:
+                  pre#editor-post-data
+                    code {{editor_post_data}}
+                  label(for="editor-post-headers") request headers:
+                  pre#editor-post-headers
+                    code {{editor_post_headers}}
+                  div#editor-post-response response code: {{editor_post_response}}
+
+        .row
+          .col-md-6.form-group.editor_code(v-for="(c,ci) in editor_codes")
+            .row.well
+              button.btn.btn-danger(type="button", v-on:click="remove_code(ci)")
+                i.fa.fa-times
+              div
+                label(for="code_system") Code System
+                select.form-control(name="code_system", v-model="editor_codes[ci].code_system_uri")
+                  //option(disabled, selected, value) -- Select a concept --
+                  option(v-for="e in code_systems", :value="e.code_system_uri") {{e.code_system}}
+                label(for="code") Code
+                input.form-control(name="code", v-model="editor_codes[ci].code")
+                label(for="designation") Designation
+                input.form-control(name="designation", v-model="editor_codes[ci].designation")
+              //- div(v-for="(e,i) in c")
+              //-   label(:for="i") {{ i }}
+              //-   input.form-control(v-bind:name="i", v-model="editor_codes[ci][i]")
+              
+        .row.alert.alert-info(v-if="fields_ok && Object.keys(editor_codes).length == 0")
+          | there is no assigned code for the concept '{{editor_concept}}' at '{{editor_site}}'
+        .row
+            button.btn.btn-primary(type="button", v-on:click="add_code()", v-if="fields_ok")
+                i.fa.fa-plus
+                | &nbsp; Add a code to the current mapping
+            button.btn.btn-primary.btn-success(type="button", v-on:click="save_mapping()", v-if="fields_ok")
+              i.fa.fa-check
+              | &nbsp; save mapping
+            //- .form-group(v-for="c in editor_codes")
+            //-   p {{ c.designation }}
+            //-   input(type="text", v-model="c.designation")
+
+          
+    script#documentation-template(type="text/x-template")
+      //- include:markdown documentation.md
+      p lol
+
+    // ----------- 
+    // | scripts | 
+    // ----------- 
+
+    //- script(src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js", integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa", crossorigin="anonymous")
+    script(src="bootstrap_3.3.7/js/bootstrap.min.js")
+    
+    //- script(src="https://cdn.datatables.net/1.10.16/js/jquery.dataTables.js")
+    //- script(src="https://cdnjs.cloudflare.com/ajax/libs/vue/2.5.2/vue.min.js")
+    script(src="js/vue.js")
+    
+    script(src="js/vue-resource@1.3.4")
+    script(src="js/vue-router.js")
+    //- script(src="js/vuex.js")
+    //- script(src="https://unpkg.com/vuetify/dist/vuetify.js")
+    //- script(src="js/vuetify.js")
+    
+    script(src="js/renderer.js")
+    
+    //- script.
+    //-   $(document).ready(function() {
+        
+    //-      // submittr();
+    //-   } );

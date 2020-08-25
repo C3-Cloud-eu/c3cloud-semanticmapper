@@ -1,0 +1,11 @@
+version: '3'
+services:
+  sis:
+    ports:
+      - "5000:5000" 
+    volumes:
+      - ./db:/app/src/db
+    container_name: c3
+    command: test
+    image: "mikaeldusenne/c3cloudsis"
+    

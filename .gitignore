@@ -1,0 +1,14 @@
+\#*
+.\#*
+.~*#
+__pycache__
+bin
+lib
+include
+pip-selfcheck.json
+nohup.out
+documents
+nginx-logs
+*.pyc
+.trash
+apikey

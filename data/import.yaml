@@ -1,0 +1,3 @@
+file.xlsx:
+  columns: ['f', 'i', 'l', 'o']
+  sheets: ["Conditions", "Observations", "Medications", "Immunizations"]

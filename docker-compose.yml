@@ -1,0 +1,17 @@
+version: '3'
+services:
+  sis:
+    network_mode: bridge
+    ports:
+      - "80:80"
+      - "5001:5001" 
+#      - "443:443"
+    volumes:
+      - ./db:/app/src/db
+      - /etc/letsencrypt:/etc/letsencrypt
+      - ./nginx-logs:/var/log/nginx
+      - ./documentation:/app/src/static/documentation
+    container_name: c3
+#    command: test
+    image: "mikaeldusenne/c3cloudsis"
+    

@@ -1,0 +1,11 @@
+version: '3'
+services:
+  sis:
+    ports:
+      - "5002:5000"
+    command: test
+    container_name: c3test
+    volumes:
+      - ./db:/app/src/db
+      - ./nginx-logs:/var/log/nginx
+    

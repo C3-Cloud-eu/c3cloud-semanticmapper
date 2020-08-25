@@ -1,0 +1,56 @@
+/* #app{ */
+/* 	background: #eaeaee; */
+/* } */
+
+/* .title-div, .well{ */
+/* 	background: #cacfda;	 */
+/* } */
+
+/* .row-nav{ */
+/* 	background: #aaafba; */
+/* } */
+
+h3{
+	margin-bottom: 1em;
+}
+
+h4{
+	font-weight: bold;
+	margin-top: 1em;
+}
+
+h4.info-title{
+	background: #777;
+	color: fff;
+	padding: 0.25em;
+}
+
+div.editor_code > div{
+	margin: 1px;
+	background-color: #dddee3;
+	border: 1px solid #bbbbcc;
+}
+
+.urldiv{
+	width: 100%;
+	max-width: 100%;
+	overflow-x: auto;
+	white-space: nowrap;
+}
+
+div.mapping-table{
+	max-height: 40em;
+	overflow-y: auto;
+}
+
+footer{
+	margin-bottom: 7em;
+}
+
+tr td button{
+	visibility: hidden;
+}
+
+tr:hover td button{
+	visibility: visible;
+}
